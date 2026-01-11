@@ -1,0 +1,4 @@
+project_id = "oqwiozlwxmaqoqyfvmsk"
+
+[functions.reset-dev-data]
+verify_jwt = false

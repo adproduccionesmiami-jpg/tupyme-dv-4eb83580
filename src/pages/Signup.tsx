@@ -1,0 +1,170 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Mail, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import logoMonocromatico from '@/assets/logo-monocromatico.png';
+
+export default function Signup() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { signUp, isLoading } = useSupabaseAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email || !password || !confirmPassword) {
+      setError('Por favor completa todos los campos');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await signUp(email, password);
+    setIsSubmitting(false);
+    
+    if (result.error) {
+      setError(result.error);
+    } else {
+      navigate('/app/dashboard');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex">
+      {/* Left Panel - Premium Branding */}
+      <div 
+        className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, hsl(215 55% 12%) 0%, hsl(215 55% 20%) 35%, hsl(210 60% 30%) 70%, hsl(200 70% 40%) 100%)',
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+        <div className="relative z-10 flex flex-col justify-center px-16">
+          <div className="flex items-center gap-3 mb-10">
+            <img src={logoMonocromatico} alt="TuPyme" className="h-28 w-auto drop-shadow-2xl" />
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Comienza gratis<br />en minutos
+          </h1>
+          <ul className="space-y-3 text-white/80">
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-white" />
+              <span>Control total de tu inventario</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-white" />
+              <span>Seguimiento de movimientos</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-white" />
+              <span>Reportes y estadísticas</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-white" />
+              <span>Fácil de usar</span>
+            </li>
+          </ul>
+        </div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Right Panel - Form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md animate-slide-up">
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center justify-center mb-8">
+            <img src={logoMonocromatico} alt="TuPyme" className="h-20 w-auto" />
+          </div>
+
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-foreground">Crear cuenta</h2>
+            <p className="text-muted-foreground mt-2">Regístrate para comenzar a gestionar tu negocio</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Correo electrónico</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="tu@empresa.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Mínimo 6 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Repite tu contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full" size="lg" disabled={isSubmitting || isLoading}>
+              {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta'}
+            </Button>
+          </form>
+
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            ¿Ya tienes cuenta?{' '}
+            <Link to="/login" className="font-medium text-primary hover:underline">
+              Iniciar sesión
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
