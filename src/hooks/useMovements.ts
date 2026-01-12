@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client.browser';
 import { useSupabaseAuth } from '@/contexts/SupabaseAuthContext';
 import { Movement, MovementType } from '@/types/inventory';
 

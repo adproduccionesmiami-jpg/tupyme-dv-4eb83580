@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { LogOut, Lock, Save, User, Loader2, Bug, RefreshCw } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client.browser';
 import { toast } from 'sonner';
 import { AppRole, APP_ROLES, ROLE_LABELS } from '@/lib/permissions';
 

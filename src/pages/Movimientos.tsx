@@ -47,8 +47,9 @@ import {
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useInventory, MovementType, Movement } from '@/contexts/InventoryContext';
+import { useInventory } from '@/contexts/InventoryContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { MovementType, Movement } from '@/types/inventory';
 import { ROLE_LABELS, AppRole } from '@/lib/permissions';
 
 // ============= HELPERS =============

@@ -45,7 +45,7 @@ export default function SupabaseDashboard() {
     });
 
     if (result.success) {
-      setProductResult({ success: true, message: `Producto "${result.product?.name}" creado exitosamente` });
+      setProductResult({ success: true, message: `Producto "${result.product?.nombre}" creado exitosamente` });
       toast.success('Producto creado');
     } else {
       setProductResult({ success: false, message: result.error || 'Error desconocido' });
@@ -63,14 +63,14 @@ export default function SupabaseDashboard() {
 
     const firstProduct = products[0];
     const result = await createMovement({
-      product_id: firstProduct.id,
+      product_id: String(firstProduct.id),
       movement_type: 'in', // ALIGNED with Supabase enum: 'in', 'out', 'adjust'
       delta: 1,
       notes: 'Movimiento de prueba desde dashboard',
     });
 
     if (result.success) {
-      setMovementResult({ success: true, message: `Movimiento creado para "${firstProduct.name}" (+1)` });
+      setMovementResult({ success: true, message: `Movimiento creado para "${firstProduct.nombre}" (+1)` });
       refetchMovements();
     } else {
       setMovementResult({ success: false, message: result.error || 'Error desconocido' });
@@ -249,15 +249,13 @@ export default function SupabaseDashboard() {
                   </TableHeader>
                   <TableBody>
                     {products.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableRow key={String(product.id)}>
+                        <TableCell className="font-medium">{product.nombre}</TableCell>
                         <TableCell className="text-muted-foreground font-mono text-xs">{product.sku ?? '-'}</TableCell>
-                        <TableCell className="text-right font-mono">${product.unit_cost.toFixed(2)}</TableCell>
-                        <TableCell className="text-right font-mono">${product.unit_price.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-mono">${Number(product.costo ?? 0).toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-mono">${Number(product.precio ?? 0).toFixed(2)}</TableCell>
                         <TableCell className="text-right font-mono">{product.stock}</TableCell>
-                        <TableCell className="text-muted-foreground text-xs">
-                          {format(new Date(product.created_at), 'dd/MM/yyyy', { locale: es })}
-                        </TableCell>
+                        <TableCell className="text-muted-foreground text-xs">-</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
