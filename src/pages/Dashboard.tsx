@@ -2,8 +2,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatCard } from '@/components/ui/stat-card';
 import { DataTable } from '@/components/ui/data-table';
-import { Package, TrendingUp, ArrowDownUp, DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw } from 'lucide-react';
+import { Package, TrendingUp, ArrowDownUp, DollarSign, ArrowUpRight, ArrowDownRight, RefreshCw, AlertTriangle, TrendingDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -48,8 +50,8 @@ export default function Dashboard() {
     }));
   }, [movements]);
 
-  const valorInventario = usePrecioVenta 
-    ? stats.valorTotalPrecio 
+  const valorInventario = usePrecioVenta
+    ? stats.valorTotalPrecio
     : stats.valorTotalCosto;
 
   const statCards = useMemo(() => [
@@ -68,8 +70,8 @@ export default function Dashboard() {
       onClick: () => navigate('/app/inventario'),
       customContent: (
         <div className="flex items-center gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
-          <Switch 
-            id="valor-toggle" 
+          <Switch
+            id="valor-toggle"
             checked={usePrecioVenta}
             onCheckedChange={setUsePrecioVenta}
             className="scale-75"
@@ -96,8 +98,8 @@ export default function Dashboard() {
   ], [stats, valorInventario, usePrecioVenta, navigate]);
 
   const columns = [
-    { 
-      key: 'producto', 
+    {
+      key: 'producto',
       header: 'Producto',
       render: (item: typeof recentActivity[0]) => (
         <span className="font-semibold text-foreground">{item.producto}</span>
@@ -121,9 +123,9 @@ export default function Dashboard() {
         );
       },
     },
-    { 
-      key: 'cantidad', 
-      header: 'Cantidad', 
+    {
+      key: 'cantidad',
+      header: 'Cantidad',
       className: 'text-center',
       render: (item: typeof recentActivity[0]) => (
         <span className="font-bold text-foreground tabular-nums">{item.cantidad}</span>
@@ -147,38 +149,108 @@ export default function Dashboard() {
   );
 
   return (
-    <AppLayout title="Inicio">
-      <div className="space-y-10">
+    <AppLayout title="Dashboard">
+      <div className="space-y-8 animate-fade-in">
+        {/* Main Stats Grid */}
         <section>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {statCards.map((stat, index) => (
               <StatCard
                 key={stat.title}
                 {...stat}
+                className="glass-card transition-all duration-300 hover:shadow-card-hover hover:-translate-y-1"
                 style={{ animationDelay: `${index * 60}ms` } as React.CSSProperties}
               />
             ))}
           </div>
         </section>
 
-        <section className="space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-muted-foreground">Actividad reciente</h2>
-            <Link 
-              to="/app/movimientos" 
-              className="text-xs font-semibold text-accent hover:text-accent/70 transition-colors flex items-center gap-1 group"
-            >
-              Ver todo 
-              <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-            </Link>
+        {/* Alerts and Critical Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2 glass-card overflow-hidden">
+            <CardHeader className="pb-3 border-b border-border/50 bg-muted/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-base font-semibold text-foreground">Actividad Reciente</CardTitle>
+                  <CardDescription className="text-xs">Últimos movimientos registrados en el sistema</CardDescription>
+                </div>
+                <Link
+                  to="/app/movimientos"
+                  className="text-xs font-semibold text-accent hover:text-accent/80 transition-colors flex items-center gap-1 group"
+                >
+                  Ver historial
+                  <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {recentActivity.length === 0 ? (
+                <EmptyActivity />
+              ) : (
+                <DataTable columns={columns} data={recentActivity} />
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Alerts Sidebar */}
+          <div className="space-y-6">
+            <Card className="glass-card border-warning/20">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-sm font-semibold text-warning flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Alertas Críticas
+                </CardTitle>
+                <Badge variant="outline" className="text-[10px] uppercase tracking-wider">Hoy</Badge>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-medium text-destructive">Sin Existencias</p>
+                    <p className="text-lg font-bold text-foreground tabular-nums">{dashboardStats.sinStock}</p>
+                  </div>
+                  <Package className="w-8 h-8 text-destructive/20" />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-warning/5 border border-warning/10">
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-medium text-warning">Bajo Stock</p>
+                    <p className="text-lg font-bold text-foreground tabular-nums">{dashboardStats.pocoStock}</p>
+                  </div>
+                  <TrendingDown className="w-8 h-8 text-warning/20" />
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-medium text-primary">Por Vencer (14d)</p>
+                    <p className="text-lg font-bold text-foreground tabular-nums">{dashboardStats.vencimiento}</p>
+                  </div>
+                  <RefreshCw className="w-8 h-8 text-primary/20" />
+                </div>
+
+                <Button
+                  variant="ghost"
+                  className="w-full text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => navigate('/app/alertas')}
+                >
+                  Gestionar todas las alertas →
+                </Button>
+              </CardContent>
+            </Card>
+
+            <div className="p-5 rounded-xl bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-card-hero relative overflow-hidden group">
+              <div className="relative z-10">
+                <p className="text-xs font-medium opacity-80 mb-1">Inversión Total</p>
+                <p className="text-2xl font-bold mb-4">
+                  ${dashboardStats.valorTotalCosto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
+                </p>
+                <Button variant="secondary" size="sm" className="w-full bg-white/10 hover:bg-white/20 border-white/10 text-white text-xs" onClick={() => navigate('/app/reportes')}>
+                  Ver Reporte Financiero
+                </Button>
+              </div>
+              <DollarSign className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 group-hover:scale-110 transition-transform duration-500" />
+            </div>
           </div>
-          
-          {recentActivity.length === 0 ? (
-            <EmptyActivity />
-          ) : (
-            <DataTable columns={columns} data={recentActivity} />
-          )}
-        </section>
+        </div>
       </div>
     </AppLayout>
   );

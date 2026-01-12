@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useMemo, ReactNode, useCallback, useEffect } from 'react';
-import { startOfDay, differenceInCalendarDays } from 'date-fns';
+import { startOfDay, differenceInCalendarDays, isSameDay } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProducts } from '@/hooks/useProducts';
+import { useMovements } from '@/hooks/useMovements';
 import { Product, Movement, MovementType, Alert } from '@/types/inventory';
 import { toast } from 'sonner';
 
@@ -29,7 +30,12 @@ interface InventoryContextType {
     valorTotalInventario: number;
     valorTotalCosto: number;
     valorTotalPrecio: number;
+    totalProductos: number;
+    sinStock: number;
+    pocoStock: number;
+    vencimiento: number;
   };
+  refetch: () => Promise<void>;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -38,27 +44,36 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const {
     products: dbProducts,
-    isLoading,
+    isLoading: loadingProducts,
     createProduct,
     updateProduct: dbUpdateProduct,
     deleteProduct: dbDeleteProduct,
-    refetch
+    refetch: refetchProducts,
   } = useProducts();
 
-  const [movements, setMovements] = useState<Movement[]>([]);
+  const {
+    movements: dbMovements,
+    isLoading: loadingMovements,
+    refetch: refetchMovements,
+  } = useMovements();
 
-  // Sync products from hook
+  // Unified loading state
+  const isLoading = loadingProducts || loadingMovements;
+
+  // Sync products and movements from hooks
   const products = useMemo(() => dbProducts, [dbProducts]);
+  const movements = useMemo(() => dbMovements, [dbMovements]);
 
-  // Handle movements locally for now (can be synced later)
-  const addMovement = useCallback((movementData: Omit<Movement, 'id' | 'fecha'>) => {
-    const newMovement: Movement = {
-      ...movementData,
-      id: Math.max(...movements.map(m => m.id), 0) + 1,
-      fecha: new Date(),
-    };
-    setMovements(prev => [newMovement, ...prev]);
-  }, [movements]);
+  // Sync refetch
+  const refetch = useCallback(async () => {
+    await Promise.all([refetchProducts(), refetchMovements()]);
+  }, [refetchProducts, refetchMovements]);
+
+  // Handle movements - In external DB mode, these are primarily driven by triggers
+  const addMovement = useCallback(() => {
+    console.info('[InventoryContext] addMovement call: Movements are managed via DB triggers on inventory_movements table.');
+    refetchMovements();
+  }, [refetchMovements]);
 
   // Product operations
   const addProduct = useCallback(async (productData: Omit<Product, 'id' | 'vendidos' | 'imagen'>) => {
@@ -205,14 +220,17 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
   // KPIs oficiales del Canon
   const dashboardStats = useMemo(() => {
+    const now = new Date();
     const valorTotalCosto = products.reduce((acc, p) => acc + (p.stock * p.costo), 0);
     const valorTotalPrecio = products.reduce((acc, p) => acc + (p.stock * p.precio), 0);
 
+    const todayMovements = movements.filter(m => isSameDay(new Date(m.fecha), now));
+
     return {
       productosActivos: products.filter(p => p.stock > 0).length,
-      movimientosHoy: 0, // Se conectará con la BD en la siguiente fase
-      entradasHoy: 0,
-      salidasHoy: 0,
+      movimientosHoy: todayMovements.length,
+      entradasHoy: todayMovements.filter(m => m.tipo === 'entrada').length,
+      salidasHoy: todayMovements.filter(m => m.tipo === 'salida').length,
       valorTotalInventario: valorTotalCosto,
       valorTotalCosto,
       valorTotalPrecio,
@@ -221,7 +239,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
       pocoStock: products.filter(p => p.minStock && p.stock > 0 && p.stock <= p.minStock).length,
       vencimiento: alerts.filter(a => a.tipo === 'vencimiento').length,
     };
-  }, [products, alerts]);
+  }, [products, movements, alerts]);
 
   return (
     <InventoryContext.Provider value={{
