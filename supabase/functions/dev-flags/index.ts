@@ -12,9 +12,12 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
+    
+    // If no auth header, return disabled (non-fatal for dev flags)
     if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "No autorizado" }), {
-        status: 401,
+      console.log("[dev-flags] No auth header, returning disabled");
+      return new Response(JSON.stringify({ ok: true, devResetEnabled: false }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -27,20 +30,25 @@ Deno.serve(async (req) => {
     });
 
     const { data: { user }, error: userError } = await client.auth.getUser();
+    
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Token inválido" }), {
-        status: 401,
+      console.log("[dev-flags] Invalid token, returning disabled");
+      return new Response(JSON.stringify({ ok: true, devResetEnabled: false }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    const userEmail = user.email ?? "";
     const devResetEnabled = (Deno.env.get("DEV_RESET_HABILITADO") === "true");
     const devAdminEmail = Deno.env.get("DEV_ADMIN_EMAIL") ?? "";
 
-    const isDevAdmin = ((user.email ?? "").toLowerCase() === devAdminEmail.toLowerCase());
+    const isDevAdmin = (userEmail.toLowerCase() === devAdminEmail.toLowerCase());
 
     // Do not leak DEV flags to non-dev users; treat as disabled.
     const safeEnabled = devResetEnabled && isDevAdmin;
+
+    console.log("[dev-flags] User:", userEmail, "isDevAdmin:", isDevAdmin, "enabled:", safeEnabled);
 
     return new Response(
       JSON.stringify({
@@ -50,8 +58,9 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Error interno", details: String(error) }), {
-      status: 500,
+    console.error("[dev-flags] Error:", error);
+    return new Response(JSON.stringify({ ok: true, devResetEnabled: false }), {
+      status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
