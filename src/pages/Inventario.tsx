@@ -103,7 +103,7 @@ export default function Inventario() {
   const handleSaveProduct = async (formData: any) => {
     try {
       if (editingProduct) {
-        const result = await updateProduct(editingProduct.id, {
+        await updateProduct(editingProduct.id, {
           nombre: formData.nombre,
           sku: formData.sku,
           categoryId: formData.categoryId,
@@ -112,37 +112,33 @@ export default function Inventario() {
           stock: formData.stock,
           costo: formData.costo,
           precio: formData.precio,
+          categoria: formData.categoria ?? editingProduct.categoria,
           minStock: formData.minStock,
           maxStock: formData.maxStock,
           expirationDate: formData.expirationDate || undefined,
         });
-        if (result.success) {
-          toast.success('Producto actualizado');
-          handleCloseDialog();
-        } else {
-          toast.error(`Error: ${result.error}`);
-        }
-      } else {
-        const result = await addProduct({
-          name: formData.nombre,
-          sku: formData.sku,
-          category_id: formData.categoryId,
-          brand_id: formData.brandId,
-          presentation: formData.presentacion,
-          stock: formData.stock,
-          unit_cost: formData.costo,
-          unit_price: formData.precio,
-          min_stock: formData.minStock,
-          max_stock: formData.maxStock,
-          expiration_date: formData.expirationDate || undefined,
-        });
-        if (result.success) {
-          toast.success('Producto agregado');
-          handleCloseDialog();
-        } else {
-          toast.error(`Error: ${result.error}`);
-        }
+        toast.success('Producto actualizado');
+        handleCloseDialog();
+        return;
       }
+
+      await addProduct({
+        sku: formData.sku,
+        nombre: formData.nombre,
+        presentacion: formData.presentacion,
+        stock: formData.stock,
+        costo: formData.costo,
+        precio: formData.precio,
+        categoria: formData.categoria ?? 'Sin categoría',
+        categoryId: formData.categoryId,
+        brandId: formData.brandId,
+        minStock: formData.minStock,
+        maxStock: formData.maxStock,
+        expirationDate: formData.expirationDate || undefined,
+      });
+
+      toast.success('Producto agregado');
+      handleCloseDialog();
     } catch (error) {
       toast.error('Error al guardar el producto');
       console.error(error);

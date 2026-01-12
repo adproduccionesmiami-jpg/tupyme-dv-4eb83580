@@ -174,7 +174,9 @@ export const getStockStatus = (product: { stock: number; minStock?: number; maxS
 export const processImportData = (data: Record<string, any>[], mode: 'add' | 'replace', currentProducts: Product[]) => {
     const errorMessages: string[] = [];
     const newProducts: Product[] = [];
-    const baseId = mode === 'replace' ? 1 : Math.max(...currentProducts.map(p => p.id), 0) + 1;
+    const baseId = mode === 'replace'
+      ? 1
+      : (Math.max(0, ...currentProducts.map(p => Number(p.id) || 0)) + 1);
 
     data.forEach((row, index) => {
         const rowNum = index + 2;
@@ -312,10 +314,6 @@ export const downloadTemplateXLSX = (productFormats: any[]) => {
             formula1: `"${CATEGORIAS_OPTIONS.join(',')}"`,
             showDropDown: true,
         });
-    }
-
-    for (let i = 0; i < 10; i++) {
-        XLSX.utils.sheet_to_json(ws, { origin: -1 });
     }
 
     XLSX.utils.book_append_sheet(wb, ws, 'Inventario');

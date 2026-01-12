@@ -103,14 +103,15 @@ export function useProductAlerts() {
   // but avoids showing 0 alerts when the user is actually working with local data).
   const products = useMemo<AlertProduct[]>(() => {
     if (dbProducts.length > 0) {
-      return dbProducts.map((p) => mapDbProductToAlertProduct({
-        id: p.id,
-        name: p.name,
-        sku: p.sku,
-        stock: p.stock,
-        min_stock: p.min_stock,
-        max_stock: p.max_stock,
-        expiration_date: p.expiration_date,
+      // `useProducts()` returns the app-level Product type (nombre/minStock/etc.)
+      return dbProducts.map((p) => ({
+        id: String(p.id),
+        name: p.nombre,
+        sku: p.sku ?? null,
+        stock: p.stock ?? 0,
+        min_stock: p.minStock ?? null,
+        max_stock: p.maxStock ?? null,
+        expiration_date: normalizeExpiryToIso(p.expirationDate ?? null),
       }));
     }
 

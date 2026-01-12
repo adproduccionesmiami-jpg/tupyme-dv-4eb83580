@@ -192,7 +192,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
             stockActual: product.stock,
             stockMinimo: product.minStock || 0,
             fechaVencimiento: product.expirationDate,
-            diasRestantes,
+            diasRestantes: daysRestantes,
             fecha: new Date(),
           });
         } else if (daysRestantes <= 14) {
@@ -209,7 +209,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
             stockActual: product.stock,
             stockMinimo: product.minStock || 0,
             fechaVencimiento: product.expirationDate,
-            diasRestantes,
+            diasRestantes: daysRestantes,
             fecha: new Date(),
           });
         }
