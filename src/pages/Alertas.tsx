@@ -28,17 +28,11 @@ import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useProductAlerts, AlertType, AlertPriority, ProductAlert } from '@/hooks/useProductAlerts';
 
-// ============= HELPERS =============
-
 const formatExpiryDisplay = (value: string) => {
-  // If it's already dd/MM/yyyy (from UI/local), just display it.
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return value;
-
-  // If it's ISO (YYYY-MM-DD), format safely without new Date(string)
   if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
     return format(parseISO(value), 'dd/MM/yyyy');
   }
-
   return value;
 };
 
@@ -62,11 +56,10 @@ const getAlertTypeConfig = (tipo: AlertType, alert?: ProductAlert) => {
       return { 
         label: 'Sobre Stock', 
         icon: TrendingUp, 
-        colorClass: 'bg-primary/10 text-primary border-primary/20',
-        iconColorClass: 'text-primary',
+        colorClass: 'bg-info/10 text-info border-info/20',
+        iconColorClass: 'text-info',
       };
     case 'vencimiento':
-      // Vencido (rojo) vs Por vencer (amarillo)
       const isExpired = alert?.diasRestantes !== undefined && alert.diasRestantes < 0;
       return { 
         label: isExpired ? 'Vencido' : 'Por vencer', 
@@ -90,8 +83,6 @@ const getPriorityConfig = (prioridad: AlertPriority) => {
   }
 };
 
-// ============= COMPONENT =============
-
 export default function Alertas() {
   const navigate = useNavigate();
   const { alerts, stats, isLoading, refetch } = useProductAlerts();
@@ -109,104 +100,33 @@ export default function Alertas() {
         return matchesSearch && matchesType;
       })
       .sort((a, b) => {
-        // Priority: alta > media > baja
         const priorityOrder = { alta: 0, media: 1, baja: 2 };
         return priorityOrder[a.prioridad] - priorityOrder[b.prioridad];
       });
   }, [alerts, search, filterType]);
 
-  // ============= HANDLERS =============
-
   const handleResolveAction = (productoSku: string) => {
     navigate(`/app/inventario?edit=${productoSku}`);
   };
 
+  const kpiCards = [
+    { key: 'sin_stock', label: 'Sin Stock', value: stats.sinStock, icon: XCircle, color: 'destructive' },
+    { key: 'poco_stock', label: 'Poco Stock', value: stats.pocoStock, icon: TrendingDown, color: 'warning' },
+    { key: 'sobre_stock', label: 'Sobre Stock', value: stats.sobreStock, icon: TrendingUp, color: 'info' },
+    { key: 'vencimiento', label: 'Vencimiento', value: stats.vencimiento, icon: Calendar, color: 'warning' },
+    { key: 'all', label: 'Total Alertas', value: stats.total, icon: Package, color: 'primary' },
+  ];
+
   return (
     <AppLayout title="Alertas">
-      <div className="space-y-6">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-          <Card 
-            className={`border-border cursor-pointer transition-all hover:border-destructive/50 hover:shadow-md ${filterType === 'sin_stock' ? 'ring-2 ring-destructive border-destructive' : ''}`}
-            onClick={() => setFilterType(filterType === 'sin_stock' ? 'all' : 'sin_stock')}
-          >
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-destructive/10 flex items-center justify-center">
-                <XCircle className="w-6 h-6 text-destructive" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Sin Stock</p>
-                <p className="text-2xl font-bold text-foreground">{stats.sinStock}</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card 
-            className={`border-border cursor-pointer transition-all hover:border-warning/50 hover:shadow-md ${filterType === 'poco_stock' ? 'ring-2 ring-warning border-warning' : ''}`}
-            onClick={() => setFilterType(filterType === 'poco_stock' ? 'all' : 'poco_stock')}
-          >
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                <TrendingDown className="w-6 h-6 text-warning" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Poco Stock</p>
-                <p className="text-2xl font-bold text-foreground">{stats.pocoStock}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className={`border-border cursor-pointer transition-all hover:border-primary/50 hover:shadow-md ${filterType === 'sobre_stock' ? 'ring-2 ring-primary border-primary' : ''}`}
-            onClick={() => setFilterType(filterType === 'sobre_stock' ? 'all' : 'sobre_stock')}
-          >
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Sobre Stock</p>
-                <p className="text-2xl font-bold text-foreground">{stats.sobreStock}</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card 
-            className={`border-border cursor-pointer transition-all hover:border-warning/50 hover:shadow-md ${filterType === 'vencimiento' ? 'ring-2 ring-warning border-warning' : ''}`}
-            onClick={() => setFilterType(filterType === 'vencimiento' ? 'all' : 'vencimiento')}
-          >
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-warning" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Vencimiento</p>
-                <p className="text-2xl font-bold text-foreground">{stats.vencimiento}</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card 
-            className={`border-border cursor-pointer transition-all hover:border-success/50 hover:shadow-md ${filterType === 'all' ? 'ring-2 ring-success border-success' : ''}`}
-            onClick={() => setFilterType('all')}
-          >
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <Package className="w-6 h-6 text-success" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Alertas</p>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="space-y-6 animate-fade-in">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Panel de Alertas</h2>
-            <p className="text-sm text-muted-foreground">Alertas de inventario que requieren atención (desde BD)</p>
+            <h1 className="text-2xl font-bold text-foreground">Alertas</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Alertas de inventario que requieren atención.
+            </p>
           </div>
           <Button 
             variant="outline" 
@@ -220,23 +140,46 @@ export default function Alertas() {
           </Button>
         </div>
 
+        {/* KPI Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {kpiCards.map((kpi) => (
+            <Card 
+              key={kpi.key}
+              className={`bg-card border-border/50 cursor-pointer transition-all hover:shadow-card-elevated ${
+                filterType === kpi.key ? 'ring-2 ring-primary border-primary' : ''
+              }`}
+              onClick={() => setFilterType(filterType === kpi.key ? 'all' : kpi.key)}
+            >
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg bg-${kpi.color}/10 flex items-center justify-center`}>
+                  <kpi.icon className={`w-5 h-5 text-${kpi.color}`} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{kpi.label}</p>
+                  <p className="text-xl font-bold text-foreground">{kpi.value}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
         {/* Filters */}
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por producto o SKU..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-muted/50 border-border/50"
             />
           </div>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] bg-muted/50 border-border/50">
               <SelectValue placeholder="Tipo de alerta" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover border-border">
               <SelectItem value="all">Todos los tipos</SelectItem>
               <SelectItem value="sin_stock">Sin Stock</SelectItem>
               <SelectItem value="poco_stock">Poco Stock</SelectItem>
@@ -248,13 +191,13 @@ export default function Alertas() {
 
         {/* Alerts Grid */}
         {filteredAlerts.length === 0 ? (
-          <Card className="border-border">
+          <Card className="bg-card border-border/50">
             <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
-                <BellOff className="w-8 h-8 text-muted-foreground" />
+              <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                <BellOff className="w-6 h-6 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">No hay alertas</h3>
-              <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+              <h3 className="text-base font-medium text-foreground mb-1">No hay alertas</h3>
+              <p className="text-sm text-muted-foreground">
                 ¡Excelente! No hay alertas de inventario pendientes.
               </p>
             </CardContent>
@@ -267,9 +210,9 @@ export default function Alertas() {
               const TypeIcon = typeConfig.icon;
               
               return (
-                <Card key={alert.id} className="border-border transition-all group hover:shadow-lg hover:border-primary/40 hover:-translate-y-0.5">
+                <Card key={alert.id} className="bg-card border-border/50 transition-all hover:shadow-card-elevated hover:border-primary/30">
                   <CardContent className="p-0">
-                    <div className={`px-4 py-3 border-b flex items-center justify-between ${typeConfig.colorClass}`}>
+                    <div className={`px-4 py-2.5 border-b flex items-center justify-between ${typeConfig.colorClass}`}>
                       <div className="flex items-center gap-2">
                         <TypeIcon className={`w-4 h-4 ${typeConfig.iconColorClass}`} />
                         <span className="font-medium text-sm">{typeConfig.label}</span>
@@ -281,10 +224,8 @@ export default function Alertas() {
                     
                     <div className="p-4 space-y-3">
                       <div>
-                        <h3 className="font-semibold text-foreground leading-tight">{alert.productoNombre}</h3>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs font-mono">{alert.productoSku}</Badge>
-                        </div>
+                        <h3 className="font-semibold text-foreground">{alert.productoNombre}</h3>
+                        <Badge variant="outline" className="text-xs font-mono mt-1">{alert.productoSku}</Badge>
                       </div>
                       
                       <p className="text-sm text-muted-foreground">{alert.mensaje}</p>
@@ -294,16 +235,10 @@ export default function Alertas() {
                           <Package className="w-3.5 h-3.5" />
                           <span>Stock: <strong className="text-foreground">{alert.stockActual}</strong></span>
                         </div>
-                        {/* Show expiration date for vencimiento alerts with debug info */}
                         {alert.tipo === 'vencimiento' && alert.fechaVencimiento ? (
-                          <div className="flex flex-col items-end gap-0.5 text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3.5 h-3.5" />
-                              <span>
-                                Vence: <strong className="text-foreground">{formatExpiryDisplay(alert.fechaVencimiento)}</strong>
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-muted-foreground/70">Días: {alert.diasRestantes}</span>
+                          <div className="flex items-center gap-1 text-muted-foreground">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>Vence: <strong className="text-foreground">{formatExpiryDisplay(alert.fechaVencimiento)}</strong></span>
                           </div>
                         ) : (
                           <div className="flex items-center gap-1 text-muted-foreground">
@@ -314,11 +249,10 @@ export default function Alertas() {
                       </div>
                     </div>
                     
-                    <div className="px-4 py-3 border-t border-border/50 bg-muted/10 flex items-center justify-center">
+                    <div className="px-4 py-3 border-t border-border/50 bg-muted/30">
                       <Button 
-                        variant="default" 
                         size="sm" 
-                        className="gap-2 px-6 bg-success hover:bg-success/90"
+                        className="w-full gap-2"
                         onClick={() => handleResolveAction(alert.productoSku)}
                       >
                         <Wrench className="w-4 h-4" />
