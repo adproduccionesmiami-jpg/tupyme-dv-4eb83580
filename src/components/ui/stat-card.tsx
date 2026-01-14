@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, ArrowUpRight } from 'lucide-react';
 import { ReactNode } from 'react';
 
 interface StatCardProps {
@@ -20,44 +20,47 @@ interface StatCardProps {
   iconClassName?: string;
 }
 
-export function StatCard({ title, value, description, icon: Icon, trend, className, style, highlight = false, customContent, onClick, hideIcon = false, iconClassName }: StatCardProps) {
+export function StatCard({ 
+  title, 
+  value, 
+  description, 
+  icon: Icon, 
+  trend, 
+  className, 
+  style, 
+  highlight = false, 
+  customContent, 
+  onClick, 
+  hideIcon = false, 
+  iconClassName 
+}: StatCardProps) {
   return (
     <div 
       className={cn(
         "relative overflow-hidden rounded-xl border transition-all duration-200 group",
         highlight 
-          ? "p-8 bg-card border-accent/30 shadow-[var(--shadow-card-hero)] hover:shadow-[var(--shadow-card-hover)]" 
-          : "p-5 bg-card border-border/40 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-elevated)]",
-        onClick && "cursor-pointer hover:border-primary/40",
+          ? "p-5 bg-primary text-primary-foreground border-primary shadow-card-hero" 
+          : "p-5 bg-card border-border/50 shadow-card hover:shadow-card-elevated hover:border-primary/30",
+        onClick && "cursor-pointer",
         className
       )}
       style={style}
       onClick={onClick}
     >
-      {/* Top accent - only on highlight, subtle but present */}
-      <div className={cn(
-        "absolute inset-x-0 top-0",
-        highlight ? "h-[2px] bg-accent" : "h-0"
-      )} />
-      
-      <div className="flex items-start justify-between gap-4 relative">
-        <div className="space-y-2 flex-1">
-          {/* Label - legible, professional */}
+      <div className="flex items-start justify-between gap-3 relative">
+        <div className="space-y-1 flex-1 min-w-0">
+          {/* Label */}
           <p className={cn(
-            "leading-none font-semibold tracking-normal",
-            highlight 
-              ? "text-base text-foreground/80" 
-              : "text-sm text-muted-foreground"
+            "text-sm font-medium",
+            highlight ? "text-primary-foreground/80" : "text-muted-foreground"
           )}>
             {title}
           </p>
           
-          {/* Value - DOMINANT, the data commands attention */}
+          {/* Value - Large and prominent */}
           <p className={cn(
-            "tracking-tight leading-none font-black",
-            highlight 
-              ? "text-5xl text-foreground" 
-              : "text-4xl text-foreground"
+            "text-3xl font-bold tracking-tight leading-none",
+            highlight ? "text-primary-foreground" : "text-foreground"
           )}>
             {value}
           </p>
@@ -65,51 +68,70 @@ export function StatCard({ title, value, description, icon: Icon, trend, classNa
           {/* Description or Trend */}
           {description && (
             <p className={cn(
-              "leading-tight mt-1",
-              highlight ? "text-sm text-muted-foreground" : "text-xs text-muted-foreground/70"
-            )}>{description}</p>
+              "text-xs mt-1.5",
+              highlight ? "text-primary-foreground/70" : "text-muted-foreground"
+            )}>
+              {description}
+            </p>
           )}
+          
           {trend && (
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-1.5 mt-2">
               <span className={cn(
-                "inline-flex items-center gap-1 font-bold rounded-md",
-                highlight ? "text-sm px-2.5 py-1" : "text-xs px-2 py-0.5",
+                "inline-flex items-center gap-0.5 text-xs font-medium px-1.5 py-0.5 rounded",
                 trend.isPositive 
-                  ? "text-success bg-success/10 border border-success/20" 
-                  : "text-destructive bg-destructive/10 border border-destructive/20"
+                  ? "text-success bg-success/10" 
+                  : "text-destructive bg-destructive/10"
               )}>
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
               </span>
               <span className={cn(
-                "text-muted-foreground/50 font-medium",
-                highlight ? "text-xs" : "text-[10px]"
-              )}>vs mes anterior</span>
+                "text-[10px]",
+                highlight ? "text-primary-foreground/60" : "text-muted-foreground/60"
+              )}>
+                vs mes anterior
+              </span>
             </div>
           )}
+          
           {/* Custom content slot */}
           {customContent}
         </div>
         
-      {/* Icon - functional, not decorative */}
+        {/* Icon with arrow indicator */}
         {!hideIcon && (
-          <div className={cn(
-            "flex-shrink-0 rounded-lg p-2 transition-colors duration-200",
-            iconClassName 
-              ? iconClassName 
-              : highlight 
-                ? "bg-accent/10" 
-                : "bg-muted/50"
-          )}>
-            <Icon 
-              className={cn(
-                "transition-colors duration-200",
+          <div className="flex flex-col items-end gap-2 flex-shrink-0">
+            {onClick && (
+              <div className={cn(
+                "w-6 h-6 rounded-full flex items-center justify-center",
                 highlight 
-                  ? "w-8 h-8 text-accent" 
-                  : "w-6 h-6",
-                !iconClassName && !highlight && "text-muted-foreground/60 group-hover:text-muted-foreground/80"
-              )} 
-              strokeWidth={highlight ? 2 : 1.5} 
-            />
+                  ? "bg-primary-foreground/20" 
+                  : "bg-muted group-hover:bg-primary/10"
+              )}>
+                <ArrowUpRight className={cn(
+                  "w-3.5 h-3.5",
+                  highlight ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
+                )} />
+              </div>
+            )}
+            <div className={cn(
+              "flex-shrink-0 rounded-lg p-2",
+              iconClassName 
+                ? iconClassName 
+                : highlight 
+                  ? "bg-primary-foreground/10" 
+                  : "bg-muted/50"
+            )}>
+              <Icon 
+                className={cn(
+                  "w-5 h-5",
+                  highlight 
+                    ? "text-primary-foreground/80" 
+                    : "text-muted-foreground"
+                )} 
+                strokeWidth={1.5} 
+              />
+            </div>
           </div>
         )}
       </div>

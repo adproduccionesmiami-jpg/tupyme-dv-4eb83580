@@ -39,6 +39,10 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -76,12 +80,11 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        'sm': 'var(--shadow-sm)',
-        'md': 'var(--shadow-md)',
-        'lg': 'var(--shadow-lg)',
+        'soft': 'var(--shadow-soft)',
         'card': 'var(--shadow-card)',
         'card-hover': 'var(--shadow-card-hover)',
         'card-elevated': 'var(--shadow-card-elevated)',
+        'card-hero': 'var(--shadow-card-hero)',
       },
       keyframes: {
         "accordion-down": {

@@ -14,12 +14,11 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import logoMonocromatico from '@/assets/logo-monocromatico.png';
-import { SidebarBrand } from './SidebarBrand';
 
 // Logo storage utilities per tenant
 const getLogoStorageKey = (tenantId: string) => `tupyme_tenant_logo_${tenantId}`;
 const MAX_FILE_SIZE_MB = 2;
-const NORMALIZED_SIZE = 512; // Retina quality for 64px display
+const NORMALIZED_SIZE = 512;
 
 const getTenantLogo = (tenantId: string): string | null => {
   try {
@@ -38,7 +37,6 @@ const saveTenantLogo = (tenantId: string, dataUrl: string): void => {
   }
 };
 
-// Normalize image to NORMALIZED_SIZE x NORMALIZED_SIZE for retina quality
 const normalizeImage = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -56,10 +54,7 @@ const normalizeImage = (file: File): Promise<string> => {
           return;
         }
         
-        // Clear with transparency
         ctx.clearRect(0, 0, NORMALIZED_SIZE, NORMALIZED_SIZE);
-        
-        // Calculate scaling to fit and center (contain behavior)
         const scale = Math.min(NORMALIZED_SIZE / img.width, NORMALIZED_SIZE / img.height);
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
@@ -67,8 +62,6 @@ const normalizeImage = (file: File): Promise<string> => {
         const offsetY = (NORMALIZED_SIZE - scaledHeight) / 2;
         
         ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
-        
-        // Export as PNG for transparency support (better for logos)
         const dataUrl = canvas.toDataURL('image/png', 1.0);
         resolve(dataUrl);
       };
@@ -94,7 +87,6 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const tenantId = user?.tenantId || 'default';
   const isAdmin = user?.role === 'admin';
   
-  // Load custom logo from localStorage
   const [customLogo, setCustomLogo] = useState<string | null>(null);
   
   useEffect(() => {
@@ -114,14 +106,12 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Validate file type
     if (!['image/png', 'image/jpeg'].includes(file.type)) {
       toast.error('Formato no válido. Sube un PNG o JPG.');
       e.target.value = '';
       return;
     }
     
-    // Validate file size (max 2 MB)
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
       toast.error(`El archivo es muy grande. Máximo ${MAX_FILE_SIZE_MB} MB.`);
       e.target.value = '';
@@ -138,63 +128,125 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
       console.error('Logo upload error:', error);
     }
     
-    // Reset input so same file can be selected again
     e.target.value = '';
   };
 
-  // Navigation items - filtered by permissions
-  const navItems = [
-    { icon: LayoutDashboard, label: 'Inicio', path: '/app/dashboard', key: 'dashboard' as const },
-    { icon: Package, label: 'Inventario', path: '/app/inventario', key: 'inventario' as const },
-    { icon: ArrowLeftRight, label: 'Movimientos', path: '/app/movimientos', key: 'movimientos' as const },
-    { icon: Bell, label: 'Alertas', path: '/app/alertas', key: 'alertas' as const },
-    { icon: FileText, label: 'Reportes', path: '/app/reportes', key: 'reportes' as const },
-    { icon: Settings, label: 'Configuración', path: '/app/configuracion', key: 'perfil' as const },
-    { icon: User, label: 'Mi Perfil', path: '/app/mi-perfil', key: 'perfil' as const },
+  // Navigation items organized by section
+  type NavKey = 'dashboard' | 'inventario' | 'movimientos' | 'alertas' | 'reportes' | 'perfil';
+
+  interface NavItem {
+    icon: typeof LayoutDashboard;
+    label: string;
+    path: string;
+    key: NavKey;
+  }
+
+  const menuItems: NavItem[] = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/app/dashboard', key: 'dashboard' },
+    { icon: Package, label: 'Inventario', path: '/app/inventario', key: 'inventario' },
+    { icon: ArrowLeftRight, label: 'Movimientos', path: '/app/movimientos', key: 'movimientos' },
+    { icon: Bell, label: 'Alertas', path: '/app/alertas', key: 'alertas' },
+    { icon: FileText, label: 'Reportes', path: '/app/reportes', key: 'reportes' },
   ];
 
-  // Filter items based on canView permissions
-  const visibleNavItems = navItems.filter(item => {
-    if (!permissions) return true; // Show all while loading
-    return permissions.canView[item.key];
-  });
+  const generalItems: NavItem[] = [
+    { icon: Settings, label: 'Configuración', path: '/app/configuracion', key: 'perfil' },
+  ];
+
+  const filterItems = (items: NavItem[]) => 
+    items.filter(item => {
+      if (!permissions) return true;
+      return permissions.canView[item.key];
+    });
+
+  const visibleMenuItems = filterItems(menuItems);
+  const visibleGeneralItems = filterItems(generalItems);
 
   const handleNavClick = () => {
     onNavigate?.();
   };
 
-  return (
-    <>
-      <SidebarBrand
-        fileInputRef={fileInputRef}
-        isAdmin={isAdmin}
-        logoSrc={customLogo || logoMonocromatico}
-        onLogoClick={handleLogoClick}
-        onLogoUpload={handleLogoUpload}
-      />
+  const NavItem = ({ item }: { item: typeof menuItems[0] }) => {
+    const isActive = location.pathname === item.path;
+    return (
+      <Link
+        to={item.path}
+        onClick={handleNavClick}
+        className={cn(
+          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+          isActive
+            ? "bg-primary text-primary-foreground"
+            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        )}
+      >
+        <item.icon className="w-5 h-5 flex-shrink-0" />
+        <span>{item.label}</span>
+      </Link>
+    );
+  };
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {visibleNavItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={handleNavClick}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <item.icon className="w-[22px] h-[22px]" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+  return (
+    <div className="flex flex-col h-full">
+      {/* Brand Header */}
+      <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg"
+          onChange={handleLogoUpload}
+          className="hidden"
+        />
+        
+        <button
+          type="button"
+          onClick={handleLogoClick}
+          className={cn(
+            "h-10 w-10 min-h-[40px] min-w-[40px] flex-shrink-0",
+            "rounded-xl bg-primary/10 flex items-center justify-center",
+            "border border-primary/20 transition-all duration-200",
+            isAdmin
+              ? "cursor-pointer hover:bg-primary/20 hover:scale-105"
+              : "cursor-default"
+          )}
+          title={isAdmin ? "Click para cambiar logo" : "Solo el administrador puede cambiar el logo"}
+        >
+          <img
+            src={customLogo || logoMonocromatico}
+            alt="Logo"
+            className="h-7 w-auto object-contain"
+          />
+        </button>
+
+        <span className="ml-3 text-lg font-bold text-foreground tracking-tight">
+          TuPyme
+        </span>
+      </div>
+
+      {/* Menu Section */}
+      <div className="flex-1 px-3 py-4 overflow-y-auto">
+        <div className="mb-6">
+          <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Menú
+          </p>
+          <nav className="space-y-1">
+            {visibleMenuItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+          </nav>
+        </div>
+
+        {/* General Section */}
+        <div>
+          <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            General
+          </p>
+          <nav className="space-y-1">
+            {visibleGeneralItems.map((item) => (
+              <NavItem key={item.path} item={item} />
+            ))}
+          </nav>
+        </div>
+      </div>
 
       {/* Logout */}
       <div className="p-3 border-t border-sidebar-border">
@@ -205,12 +257,12 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             logout();
             navigate('/login');
           }}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-base font-medium text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-all duration-200 cursor-pointer active:scale-[0.98]"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 cursor-pointer"
         >
-          <LogOut className="w-[22px] h-[22px]" />
+          <LogOut className="w-5 h-5" />
           <span>Cerrar sesión</span>
         </button>
       </div>
-    </>
+    </div>
   );
 }

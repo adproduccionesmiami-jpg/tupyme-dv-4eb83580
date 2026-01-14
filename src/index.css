@@ -6,30 +6,29 @@
 
 @layer base {
   :root {
-    /* Warm white background - subtle, not consciously visible */
-    --background: 45 25% 97%;
-    --foreground: 215 50% 15%;
+    /* Premium Light Mode - Clean white */
+    --background: 0 0% 98%;
+    --foreground: 220 20% 12%;
 
-    --card: 40 20% 99%;
-    --card-foreground: 215 50% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 45% 18%;
+    --popover-foreground: 220 20% 12%;
 
-    /* Premium TuPyme Blue - from logo dark blue #1a365d */
-    --primary: 215 55% 23%;
+    /* Premium Green Accent - from Donezo reference */
+    --primary: 152 55% 28%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 15% 93%;
-    --secondary-foreground: 215 50% 20%;
+    --secondary: 150 10% 94%;
+    --secondary-foreground: 220 15% 20%;
 
-    --muted: 210 12% 91%;
-    --muted-foreground: 215 15% 45%;
+    --muted: 150 8% 92%;
+    --muted-foreground: 220 10% 45%;
 
-    /* Accent from logo light blue #3b82f6 */
-    --accent: 217 90% 60%;
+    /* Accent - emerald green like Donezo */
+    --accent: 152 60% 38%;
     --accent-foreground: 0 0% 100%;
-    --accent-electric: 200 90% 50%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -40,69 +39,92 @@
     --warning: 38 95% 48%;
     --warning-foreground: 20 25% 15%;
 
-    --border: 215 20% 86%;
-    --input: 215 15% 90%;
-    --ring: 215 55% 23%;
+    --info: 200 80% 50%;
+    --info-foreground: 0 0% 100%;
 
-    --radius: 0.625rem;
+    --border: 220 15% 88%;
+    --input: 220 12% 90%;
+    --ring: 152 55% 28%;
 
-    /* Sidebar specific - TuPyme premium dark blue */
-    --sidebar-background: 215 55% 12%;
-    --sidebar-foreground: 210 15% 75%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 215 55% 12%;
-    --sidebar-accent: 215 50% 18%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 45% 20%;
-    --sidebar-ring: 217 90% 60%;
-    --sidebar-muted: 215 15% 50%;
+    --radius: 0.75rem;
 
-    /* Command system shadows - real weight */
-    --shadow-soft: 0 1px 3px 0 hsl(215 50% 10% / 0.04);
-    --shadow-card: 0 2px 8px -2px hsl(215 50% 10% / 0.08), 0 1px 3px -1px hsl(215 50% 10% / 0.04);
-    --shadow-card-elevated: 0 8px 24px -6px hsl(215 50% 10% / 0.16), 0 4px 10px -4px hsl(215 50% 10% / 0.08);
-    --shadow-card-hero: 0 12px 36px -8px hsl(215 50% 10% / 0.22), 0 6px 16px -4px hsl(215 50% 10% / 0.12), 0 2px 6px -2px hsl(217 50% 30% / 0.08);
-    --shadow-card-hover: 0 16px 48px -10px hsl(220 30% 10% / 0.26), 0 8px 20px -6px hsl(220 30% 10% / 0.14);
+    /* Sidebar - Dark premium */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 40%;
+    --sidebar-primary: 152 55% 28%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 152 50% 95%;
+    --sidebar-accent-foreground: 152 55% 28%;
+    --sidebar-border: 220 15% 92%;
+    --sidebar-ring: 152 60% 38%;
+    --sidebar-muted: 220 10% 55%;
+
+    /* Shadows */
+    --shadow-soft: 0 1px 3px 0 hsl(220 20% 10% / 0.04);
+    --shadow-card: 0 2px 8px -2px hsl(220 20% 10% / 0.06), 0 1px 3px -1px hsl(220 20% 10% / 0.03);
+    --shadow-card-elevated: 0 8px 24px -6px hsl(220 20% 10% / 0.12), 0 4px 10px -4px hsl(220 20% 10% / 0.06);
+    --shadow-card-hero: 0 12px 36px -8px hsl(220 20% 10% / 0.18), 0 6px 16px -4px hsl(220 20% 10% / 0.10);
+    --shadow-card-hover: 0 16px 48px -10px hsl(220 20% 10% / 0.22), 0 8px 20px -6px hsl(220 20% 10% / 0.12);
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 220 15% 92%;
+    /* Dark Mode - Premium deep dark */
+    --background: 220 20% 7%;
+    --foreground: 220 10% 92%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 220 15% 92%;
+    --card: 220 18% 10%;
+    --card-foreground: 220 10% 92%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 220 15% 92%;
+    --popover: 220 18% 10%;
+    --popover-foreground: 220 10% 92%;
 
-    /* Premium TuPyme Blue for dark mode */
-    --primary: 217 80% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary Green */
+    --primary: 152 55% 45%;
+    --primary-foreground: 220 20% 7%;
 
-    --secondary: 215 25% 18%;
-    --secondary-foreground: 210 15% 85%;
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 220 10% 85%;
 
-    --muted: 215 20% 18%;
-    --muted-foreground: 215 10% 60%;
+    --muted: 220 15% 14%;
+    --muted-foreground: 220 10% 55%;
 
-    --accent: 200 75% 50%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - bright emerald for dark */
+    --accent: 152 60% 45%;
+    --accent-foreground: 220 20% 7%;
 
-    --destructive: 0 62% 45%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 20%;
-    --input: 215 20% 20%;
-    --ring: 217 80% 55%;
+    --success: 152 65% 45%;
+    --success-foreground: 220 20% 7%;
 
-    --sidebar-background: 215 55% 6%;
-    --sidebar-foreground: 210 15% 70%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 215 55% 6%;
-    --sidebar-accent: 215 45% 15%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 40% 15%;
-    --sidebar-ring: 200 75% 50%;
+    --warning: 38 90% 50%;
+    --warning-foreground: 20 25% 10%;
+
+    --info: 200 75% 55%;
+    --info-foreground: 220 20% 7%;
+
+    --border: 220 15% 16%;
+    --input: 220 15% 16%;
+    --ring: 152 55% 45%;
+
+    /* Sidebar Dark */
+    --sidebar-background: 220 20% 5%;
+    --sidebar-foreground: 220 10% 65%;
+    --sidebar-primary: 152 55% 45%;
+    --sidebar-primary-foreground: 220 20% 5%;
+    --sidebar-accent: 220 15% 12%;
+    --sidebar-accent-foreground: 220 10% 95%;
+    --sidebar-border: 220 15% 12%;
+    --sidebar-ring: 152 60% 45%;
+    --sidebar-muted: 220 10% 50%;
+
+    /* Shadows for dark */
+    --shadow-soft: 0 1px 3px 0 hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.4), 0 1px 3px -1px hsl(0 0% 0% / 0.2);
+    --shadow-card-elevated: 0 8px 24px -6px hsl(0 0% 0% / 0.5), 0 4px 10px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card-hero: 0 12px 36px -8px hsl(0 0% 0% / 0.6), 0 6px 16px -4px hsl(0 0% 0% / 0.4);
+    --shadow-card-hover: 0 16px 48px -10px hsl(0 0% 0% / 0.7), 0 8px 20px -6px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -114,9 +136,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    background-blend-mode: overlay;
-    background-size: 128px 128px;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -142,8 +161,33 @@
     animation: slideInLeft 0.3s ease-out forwards;
   }
 
+  /* Premium glass card effect */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-sm border border-border/50;
+    @apply bg-card border border-border/60 shadow-[var(--shadow-card)];
+  }
+
+  .glass-card-elevated {
+    @apply bg-card border border-border/60 shadow-[var(--shadow-card-elevated)];
+  }
+
+  /* Glow effect on hover for active/selected cards */
+  .card-glow {
+    @apply transition-all duration-300;
+  }
+  
+  .card-glow:hover {
+    @apply shadow-[var(--shadow-card-hover)] border-primary/30;
+  }
+
+  /* KPI card style */
+  .kpi-card {
+    @apply bg-card border border-border/50 rounded-xl p-5 transition-all duration-200;
+    @apply hover:border-primary/30 hover:shadow-[var(--shadow-card-elevated)];
+  }
+
+  .kpi-card-highlight {
+    @apply bg-primary text-primary-foreground border-primary rounded-xl p-5;
+    @apply shadow-[var(--shadow-card-hero)];
   }
 }
 
