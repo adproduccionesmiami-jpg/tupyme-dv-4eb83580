@@ -55,7 +55,7 @@ export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormPro
 
     const isPerishable = useMemo(() => {
         const cat = categories.find(c => c.id === formData.categoryId);
-        return cat ? isCategoriaPerecederera(cat.nombre) : false;
+        return cat ? isCategoriaPerecederera(cat.name) : false;
     }, [formData.categoryId, categories]);
 
     const handleSave = () => {
@@ -144,7 +144,7 @@ export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormPro
                             </SelectTrigger>
                             <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl shadow-2xl">
                                 {categories.map((cat) => (
-                                    <SelectItem key={cat.id} value={cat.id} className="rounded-xl py-3 focus:bg-primary/10">{cat.nombre}</SelectItem>
+                                    <SelectItem key={cat.id} value={cat.id} className="rounded-xl py-3 focus:bg-primary/10">{cat.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -161,7 +161,7 @@ export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormPro
                             </SelectTrigger>
                             <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl shadow-2xl">
                                 {brands.map((brand) => (
-                                    <SelectItem key={brand.id} value={brand.id} className="rounded-xl py-3 focus:bg-primary/10">{brand.nombre}</SelectItem>
+                                    <SelectItem key={brand.id} value={brand.id} className="rounded-xl py-3 focus:bg-primary/10">{brand.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
