@@ -25,6 +25,7 @@ import { AlertTriangle } from 'lucide-react';
 import { InventoryHeader } from '@/components/inventory/InventoryHeader';
 import { ProductTable } from '@/components/inventory/ProductTable';
 import { ProductForm } from '@/components/inventory/ProductForm';
+import { InventoryFooter } from '@/components/inventory/InventoryFooter';
 
 // Types and Utils
 import {
@@ -248,6 +249,12 @@ export default function Inventario() {
         canEdit={true}
         onEdit={handleOpenDialog}
         onDelete={setDeleteProductState}
+      />
+
+      <InventoryFooter
+        filteredCount={filteredProducts.length}
+        totalCount={products.length}
+        products={filteredProducts}
       />
 
       {/* Dialogs */}
