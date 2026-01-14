@@ -142,7 +142,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   }
 
   const menuItems: NavItem[] = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/app/dashboard', key: 'dashboard' },
+    { icon: LayoutDashboard, label: 'Inicio', path: '/app/dashboard', key: 'dashboard' },
     { icon: Package, label: 'Inventario', path: '/app/inventario', key: 'inventario' },
     { icon: ArrowLeftRight, label: 'Movimientos', path: '/app/movimientos', key: 'movimientos' },
     { icon: Bell, label: 'Alertas', path: '/app/alertas', key: 'alertas' },

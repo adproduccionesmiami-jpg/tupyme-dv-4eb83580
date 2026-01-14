@@ -59,32 +59,41 @@ export function InventoryHeader({
     canUpload,
     stats
 }: InventoryHeaderProps) {
-    const filters: { key: FilterType; label: string; icon?: React.ReactNode }[] = [
-        { key: 'todos', label: 'Todos', icon: <LayoutGrid className="w-3.5 h-3.5" /> },
-        { key: 'poco-stock', label: 'Poco stock', icon: <AlertTriangle className="w-3.5 h-3.5" /> },
-        { key: 'sin-stock', label: 'Sin stock', icon: <XCircle className="w-3.5 h-3.5" /> },
-        { key: 'sobre-stock', label: 'Sobre stock', icon: <ArrowUpCircle className="w-3.5 h-3.5" /> },
-        { key: 'mas-vendidos', label: 'Más vendidos', icon: <TrendingUp className="w-3.5 h-3.5" /> },
+    const filters: { key: FilterType; label: string; icon?: React.ReactNode; colorActive?: string; colorInactive?: string }[] = [
+        { key: 'todos', label: 'Todos', icon: <LayoutGrid className="w-3.5 h-3.5" />, colorActive: 'bg-muted text-foreground', colorInactive: 'text-muted-foreground' },
+        { key: 'poco-stock', label: 'Poco stock', icon: <AlertTriangle className="w-3.5 h-3.5" />, colorActive: 'bg-amber-500/20 text-amber-400 border-amber-500/30', colorInactive: 'text-muted-foreground hover:text-amber-400 hover:bg-amber-500/10' },
+        { key: 'sin-stock', label: 'Sin stock', icon: <XCircle className="w-3.5 h-3.5" />, colorActive: 'bg-red-500/20 text-red-400 border-red-500/30', colorInactive: 'text-muted-foreground hover:text-red-400 hover:bg-red-500/10' },
+        { key: 'sobre-stock', label: 'Sobre stock', icon: <ArrowUpCircle className="w-3.5 h-3.5" />, colorActive: 'bg-blue-500/20 text-blue-400 border-blue-500/30', colorInactive: 'text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10' },
+        { key: 'mas-vendidos', label: 'Más vendidos', icon: <TrendingUp className="w-3.5 h-3.5" />, colorActive: 'bg-muted text-foreground', colorInactive: 'text-muted-foreground' },
     ];
 
     return (
-        <div className="space-y-6 mb-6 animate-fade-in">
+        <div className="space-y-4 mb-6 animate-fade-in">
+            {/* Page Header with H1 */}
+            <div className="flex flex-col gap-1">
+                <h1 className="text-2xl font-bold text-foreground">Inventario</h1>
+                <p className="text-sm text-muted-foreground">
+                    Gestiona productos, stock y existencias de tu negocio.
+                </p>
+            </div>
+
+            {/* Stats & Actions Row */}
             {/* Top Row: Stats & Primary Actions */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                 {/* Stats Summary */}
-                <div className="flex items-center gap-3 flex-wrap">
-                    <Badge variant="secondary" className="px-3 py-1.5 text-xs font-semibold gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <Badge variant="secondary" className="px-3 py-1.5 text-xs font-semibold gap-1.5">
                         <Package className="w-3.5 h-3.5" />
                         {stats.total} productos
                     </Badge>
                     {stats.pocoStock > 0 && (
-                        <Badge variant="outline" className="px-3 py-1.5 text-xs font-semibold gap-2 border-warning/30 text-warning bg-warning/5">
+                        <Badge variant="outline" className="px-3 py-1.5 text-xs font-semibold gap-1.5 border-amber-500/30 text-amber-400 bg-amber-500/10">
                             <AlertTriangle className="w-3.5 h-3.5" />
-                            {stats.pocoStock} con poco stock
+                            {stats.pocoStock} poco stock
                         </Badge>
                     )}
                     {stats.sinStock > 0 && (
-                        <Badge variant="outline" className="px-3 py-1.5 text-xs font-semibold gap-2 border-destructive/30 text-destructive bg-destructive/5">
+                        <Badge variant="outline" className="px-3 py-1.5 text-xs font-semibold gap-1.5 border-red-500/30 text-red-400 bg-red-500/10">
                             <XCircle className="w-3.5 h-3.5" />
                             {stats.sinStock} sin stock
                         </Badge>
@@ -167,14 +176,14 @@ export function InventoryHeader({
                     {filters.map((filter) => (
                         <Button
                             key={filter.key}
-                            variant={activeFilter === filter.key ? 'default' : 'ghost'}
+                            variant="ghost"
                             size="sm"
                             onClick={() => onFilterChange(filter.key)}
                             className={cn(
-                                "h-9 px-3 gap-1.5 text-xs font-medium whitespace-nowrap transition-colors",
+                                "h-9 px-3 gap-1.5 text-xs font-medium whitespace-nowrap transition-all border",
                                 activeFilter === filter.key
-                                    ? "bg-primary text-primary-foreground shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                    ? filter.colorActive + " border-current"
+                                    : filter.colorInactive + " border-transparent"
                             )}
                         >
                             {filter.icon}

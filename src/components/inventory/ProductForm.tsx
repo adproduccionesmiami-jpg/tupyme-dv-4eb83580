@@ -5,7 +5,6 @@ import { Label } from '@/components/ui/label';
 import {
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
@@ -23,7 +22,6 @@ import {
     isCategoriaPerecederera
 } from '@/types/inventory';
 import { useCategories } from '@/hooks/useCategories';
-import { useBrands } from '@/hooks/useBrands';
 import { useProductFormats } from '@/hooks/useProductFormats';
 
 interface ProductFormProps {
@@ -34,7 +32,6 @@ interface ProductFormProps {
 
 export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormProps) {
     const { data: categories = [], isLoading: loadingCats } = useCategories();
-    const { data: brands = [], isLoading: loadingBrands } = useBrands();
     const { data: formats = [], isLoading: loadingFormats } = useProductFormats();
 
     const [formData, setFormData] = useState({
@@ -46,7 +43,6 @@ export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormPro
         precio: editingProduct?.precio.toString() || '0',
         categoria: editingProduct?.categoria || '',
         categoryId: editingProduct?.categoryId || '',
-        brandId: editingProduct?.brandId || '',
         minStock: editingProduct?.minStock?.toString() || '10',
         maxStock: editingProduct?.maxStock?.toString() || '100',
         expirationDate: editingProduct?.expirationDate || '',
@@ -87,98 +83,114 @@ export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormPro
         });
     };
 
+    // TODO:DATA - categories comes from Supabase. If empty, show placeholder.
+    const hasCategories = categories.length > 0;
+
     return (
-        <DialogContent className="sm:max-w-[700px] overflow-hidden rounded-[2.5rem] border-none shadow-2xl bg-background/95 backdrop-blur-xl p-0">
-            <div className="bg-primary/5 p-8 border-b border-primary/10">
-                <DialogHeader className="space-y-2">
-                    <DialogTitle className="flex items-center gap-4 text-3xl font-black tracking-tighter">
-                        <div className="p-3 rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                            <Package className="w-7 h-7" />
+        <DialogContent className="sm:max-w-[540px] max-h-[90vh] overflow-hidden rounded-xl border-border/50 shadow-xl bg-card p-0">
+            {/* Header */}
+            <div className="px-6 pt-6 pb-4 border-b border-border/50">
+                <DialogHeader className="space-y-1">
+                    <DialogTitle className="flex items-center gap-3 text-lg font-bold">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                            <Package className="w-5 h-5" />
                         </div>
                         {editingProduct ? 'Editar Producto' : 'Agregar Producto'}
                     </DialogTitle>
-                    <DialogDescription className="text-muted-foreground/80 font-semibold text-sm">
+                    <DialogDescription className="text-muted-foreground text-sm">
                         {editingProduct
-                            ? 'Modifica los parámetros técnicos del registro.'
-                            : 'Define la información base para el nuevo ítem de inventario.'
+                            ? 'Modifica los datos del producto.'
+                            : 'Ingresa la información del nuevo producto.'
                         }
                     </DialogDescription>
                 </DialogHeader>
             </div>
 
-            <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                {/* ID Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2.5">
-                        <Label htmlFor="sku" className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">SKU / CÓDIGO BARRAS *</Label>
+            {/* Form Content */}
+            <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
+                {/* SKU & Name */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="sku" className="text-xs font-semibold text-muted-foreground">
+                            SKU / Código *
+                        </Label>
                         <Input
                             id="sku"
                             placeholder="PRO-001"
                             value={formData.sku}
                             onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                            className="h-14 bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl transition-all font-mono text-lg px-5"
+                            className="h-10 bg-muted/30 border-border/50 font-mono text-sm"
                         />
                     </div>
-                    <div className="space-y-2.5">
-                        <Label htmlFor="nombre" className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">NOMBRE COMERCIAL *</Label>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="nombre" className="text-xs font-semibold text-muted-foreground">
+                            Nombre *
+                        </Label>
                         <Input
                             id="nombre"
                             placeholder="Ej: Aceite de Girasol 1L"
                             value={formData.nombre}
                             onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                            className="h-14 bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl transition-all font-bold text-lg px-5"
+                            className="h-10 bg-muted/30 border-border/50 text-sm font-medium"
                         />
                     </div>
                 </div>
 
-                {/* Categorization Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2.5">
-                        <Label className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">CATEGORÍA *</Label>
+                {/* Category & Format */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground">
+                            Categoría *
+                        </Label>
                         <Select
                             value={formData.categoryId}
                             onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+                            disabled={loadingCats}
                         >
-                            <SelectTrigger className="h-14 bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl px-5">
-                                {loadingCats ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <SelectValue placeholder="Categoría..." />}
+                            <SelectTrigger className="h-10 bg-muted/30 border-border/50 text-sm">
+                                {loadingCats ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <SelectValue placeholder={hasCategories ? "Selecciona..." : "Sin datos"} />
+                                )}
                             </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl shadow-2xl">
-                                {categories.map((cat) => (
-                                    <SelectItem key={cat.id} value={cat.id} className="rounded-xl py-3 focus:bg-primary/10">{cat.name}</SelectItem>
-                                ))}
+                            <SelectContent className="bg-popover border-border">
+                                {hasCategories ? (
+                                    categories.map((cat) => (
+                                        <SelectItem key={cat.id} value={cat.id} className="text-sm">
+                                            {cat.name}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    // TODO:DATA - Placeholder when no categories
+                                    <SelectItem value="__placeholder__" disabled className="text-sm text-muted-foreground">
+                                        Sin datos disponibles
+                                    </SelectItem>
+                                )}
                             </SelectContent>
                         </Select>
                     </div>
 
-                    <div className="space-y-2.5">
-                        <Label className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">MARCA</Label>
-                        <Select
-                            value={formData.brandId}
-                            onValueChange={(value) => setFormData({ ...formData, brandId: value })}
-                        >
-                            <SelectTrigger className="h-14 bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl px-5">
-                                {loadingBrands ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <SelectValue placeholder="Marca..." />}
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl shadow-2xl">
-                                {brands.map((brand) => (
-                                    <SelectItem key={brand.id} value={brand.id} className="rounded-xl py-3 focus:bg-primary/10">{brand.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2.5">
-                        <Label className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">FORMATO</Label>
+                    <div className="space-y-1.5">
+                        <Label className="text-xs font-semibold text-muted-foreground">
+                            Formato
+                        </Label>
                         <Select
                             value={formData.presentacion}
                             onValueChange={(value) => setFormData({ ...formData, presentacion: value })}
                         >
-                            <SelectTrigger className="h-14 bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl px-5">
-                                {loadingFormats ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <SelectValue placeholder="Formato..." />}
+                            <SelectTrigger className="h-10 bg-muted/30 border-border/50 text-sm">
+                                {loadingFormats ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <SelectValue placeholder="Formato..." />
+                                )}
                             </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-border/40 backdrop-blur-3xl shadow-2xl overflow-y-auto max-h-[300px]">
+                            <SelectContent className="bg-popover border-border max-h-[200px]">
                                 {FORMATO_OPTIONS.map((formato) => (
-                                    <SelectItem key={formato} value={formato} className="rounded-xl py-2 focus:bg-primary/10">{formato}</SelectItem>
+                                    <SelectItem key={formato} value={formato} className="text-sm">
+                                        {formato}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -186,103 +198,129 @@ export function ProductForm({ editingProduct, onSave, onCancel }: ProductFormPro
                 </div>
 
                 {/* Stock Controls */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 rounded-[2rem] bg-primary/5 border-2 border-primary/10 shadow-inner">
-                    <div className="space-y-2.5">
-                        <Label htmlFor="stock" className="text-[11px] uppercase font-black tracking-[0.2em] text-primary/70 ml-1">STOCK ACTUAL</Label>
-                        <Input
-                            id="stock"
-                            type="number"
-                            value={formData.stock}
-                            onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                            className="h-14 bg-background border-2 border-primary/20 rounded-2xl focus:ring-4 focus:ring-primary/10 transition-all text-center font-black text-2xl text-primary"
-                        />
-                    </div>
-                    <div className="space-y-2.5">
-                        <Label htmlFor="minStock" className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">MÍN. (ALERTA)</Label>
-                        <Input
-                            id="minStock"
-                            type="number"
-                            value={formData.minStock}
-                            onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
-                            className="h-14 bg-background/50 border-2 border-transparent focus:border-amber-500/20 rounded-2xl text-center font-bold text-lg"
-                        />
-                    </div>
-                    <div className="space-y-2.5">
-                        <Label htmlFor="maxStock" className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">MÁX. (REPOSICIÓN)</Label>
-                        <Input
-                            id="maxStock"
-                            type="number"
-                            value={formData.maxStock}
-                            onChange={(e) => setFormData({ ...formData, maxStock: e.target.value })}
-                            className="h-14 bg-background/50 border-2 border-transparent focus:border-blue-500/20 rounded-2xl text-center font-bold text-lg"
-                        />
+                <div className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Control de Stock
+                    </p>
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1.5">
+                            <Label htmlFor="stock" className="text-xs text-muted-foreground">
+                                Stock actual
+                            </Label>
+                            <Input
+                                id="stock"
+                                type="number"
+                                value={formData.stock}
+                                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                className="h-10 bg-background border-border/50 text-center font-bold text-lg"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="minStock" className="text-xs text-muted-foreground">
+                                Stock mínimo
+                            </Label>
+                            <Input
+                                id="minStock"
+                                type="number"
+                                value={formData.minStock}
+                                onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
+                                className="h-10 bg-background border-border/50 text-center text-sm"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label htmlFor="maxStock" className="text-xs text-muted-foreground">
+                                Stock máximo
+                            </Label>
+                            <Input
+                                id="maxStock"
+                                type="number"
+                                value={formData.maxStock}
+                                onChange={(e) => setFormData({ ...formData, maxStock: e.target.value })}
+                                className="h-10 bg-background border-border/50 text-center text-sm"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* Pricing Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2.5">
-                        <Label htmlFor="costo" className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">COSTO UNITARIO ($)</Label>
-                        <div className="relative group">
-                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground/40 font-black text-lg group-focus-within:text-primary transition-colors">$</div>
+                {/* Pricing */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="costo" className="text-xs font-semibold text-muted-foreground">
+                            Costo ($)
+                        </Label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
                             <Input
                                 id="costo"
                                 type="number"
                                 step="0.01"
                                 value={formData.costo}
                                 onChange={(e) => setFormData({ ...formData, costo: e.target.value })}
-                                className="h-14 bg-muted/20 border-2 border-transparent focus:border-primary/20 focus:bg-background rounded-2xl pl-10 pr-5 transition-all text-lg font-bold"
+                                className="h-10 bg-muted/30 border-border/50 pl-7 text-sm"
                             />
                         </div>
                     </div>
-                    <div className="space-y-2.5">
-                        <Label htmlFor="precio" className="text-[11px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 ml-1">PRECIO VENTA ($) *</Label>
-                        <div className="relative group">
-                            <div className="absolute left-5 top-1/2 -translate-y-1/2 text-primary font-black text-xl">$</div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="precio" className="text-xs font-semibold text-muted-foreground">
+                            Precio venta ($) *
+                        </Label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-primary text-sm font-semibold">$</span>
                             <Input
                                 id="precio"
                                 type="number"
                                 step="0.01"
                                 value={formData.precio}
                                 onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
-                                className="h-14 bg-primary/5 border-2 border-primary/20 focus:border-primary focus:bg-background rounded-2xl pl-10 pr-5 transition-all text-xl font-black text-foreground shadow-sm"
+                                className="h-10 bg-primary/5 border-primary/30 pl-7 text-sm font-semibold"
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* Expiration Section */}
-                <div className="p-6 rounded-[2rem] bg-rose-500/5 border-2 border-dashed border-rose-500/10 space-y-4">
-                    <Label htmlFor="expirationDate" className="text-[11px] uppercase font-black tracking-[0.2em] text-rose-600/60 ml-1 flex items-center gap-2">
-                        <CalendarIcon className="w-4 h-4" />
-                        FECHA DE VENCIMIENTO
-                        {isPerishable && <span className="text-rose-600 font-black text-lg">*</span>}
+                {/* Expiration Date */}
+                <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20 border-dashed space-y-2">
+                    <Label htmlFor="expirationDate" className="text-xs font-semibold text-amber-500/80 flex items-center gap-2">
+                        <CalendarIcon className="w-3.5 h-3.5" />
+                        Fecha de vencimiento
+                        {isPerishable && <span className="text-amber-500">*</span>}
                     </Label>
                     <Input
                         id="expirationDate"
                         type="date"
                         value={formData.expirationDate}
                         onChange={(e) => setFormData({ ...formData, expirationDate: e.target.value })}
-                        className="h-14 bg-background border-2 border-transparent focus:border-rose-500/20 rounded-2xl px-5 transition-all text-lg"
+                        className="h-10 bg-background border-border/50 text-sm"
                     />
                     {isPerishable && !formData.expirationDate && (
-                        <p className="text-[10px] text-rose-600 font-bold uppercase tracking-widest px-1">Atención: Requerido para productos de esta categoría</p>
+                        <p className="text-xs text-amber-500 font-medium">
+                            Requerido para productos de esta categoría
+                        </p>
                     )}
                 </div>
 
+                {/* Error */}
                 {formError && (
-                    <div className="p-5 rounded-2xl bg-destructive/10 border-2 border-destructive/20 text-destructive text-sm font-black text-center animate-in fade-in slide-in-from-bottom-2">
+                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm font-medium text-center">
                         {formError}
                     </div>
                 )}
             </div>
 
-            <div className="p-8 bg-muted/10 border-t border-border/40 flex flex-col sm:flex-row gap-4">
-                <Button variant="ghost" onClick={onCancel} className="h-14 flex-1 rounded-2xl font-bold text-muted-foreground hover:bg-muted/50 transition-all text-base">
+            {/* Footer */}
+            <div className="px-6 py-4 bg-muted/30 border-t border-border/50 flex gap-3">
+                <Button 
+                    variant="ghost" 
+                    onClick={onCancel} 
+                    className="flex-1 h-10 text-sm font-medium"
+                >
                     Cancelar
                 </Button>
-                <Button onClick={handleSave} className="h-14 flex-[1.5] rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-black shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 text-lg">
-                    {editingProduct ? 'Guardar Cambios' : 'Registrar en Inventario'}
+                <Button 
+                    onClick={handleSave} 
+                    className="flex-[1.5] h-10 text-sm font-semibold"
+                >
+                    {editingProduct ? 'Guardar cambios' : 'Agregar producto'}
                 </Button>
             </div>
         </DialogContent>

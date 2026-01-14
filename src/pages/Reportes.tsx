@@ -485,7 +485,13 @@ export default function Reportes() {
   return (
     <AppLayout title="Reportes">
       <div className="space-y-6">
-        {/* Main Card - No redundant header, title is in AppLayout */}
+        {/* Page Header */}
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Reportes</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Genera reportes y analiza el rendimiento de tu inventario.
+          </p>
+        </div>
 
         {/* Main Card */}
         <Card className="border-border/40 shadow-[var(--shadow-card)]">

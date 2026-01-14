@@ -153,12 +153,12 @@ export default function Dashboard() {
   );
 
   return (
-    <AppLayout title="Dashboard">
+    <AppLayout title="Inicio">
       <div className="space-y-6 animate-fade-in">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+            <h1 className="text-2xl font-bold text-foreground">Inicio</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Resumen de tu inventario y actividad reciente.
             </p>
@@ -191,10 +191,10 @@ export default function Dashboard() {
                 <CardTitle className="text-base font-semibold">Actividad Reciente</CardTitle>
                 <Link
                   to="/app/movimientos"
-                  className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 group"
+                  className="text-sm font-semibold text-primary hover:text-primary/80 hover:underline flex items-center gap-1.5 group transition-colors"
                 >
                   Ver todo
-                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             </CardHeader>
@@ -215,33 +215,33 @@ export default function Dashboard() {
                 <CardTitle className="text-sm font-semibold text-foreground">Alertas Críticas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-red-500/15 border border-red-500/30">
                   <div>
-                    <p className="text-xs font-medium text-destructive">Sin Stock</p>
+                    <p className="text-xs font-semibold text-red-400">Sin Stock</p>
                     <p className="text-xl font-bold text-foreground">{dashboardStats.sinStock}</p>
                   </div>
-                  <Package className="w-6 h-6 text-destructive/30" />
+                  <Package className="w-6 h-6 text-red-400/60" />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-warning/5 border border-warning/10">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/15 border border-amber-500/30">
                   <div>
-                    <p className="text-xs font-medium text-warning">Poco Stock</p>
+                    <p className="text-xs font-semibold text-amber-400">Poco Stock</p>
                     <p className="text-xl font-bold text-foreground">{dashboardStats.pocoStock}</p>
                   </div>
-                  <TrendingUp className="w-6 h-6 text-warning/30" />
+                  <TrendingUp className="w-6 h-6 text-amber-400/60" />
                 </div>
 
-                <div className="flex items-center justify-between p-3 rounded-lg bg-info/5 border border-info/10">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/15 border border-amber-500/30">
                   <div>
-                    <p className="text-xs font-medium text-info">Por Vencer</p>
+                    <p className="text-xs font-semibold text-amber-400">Por Vencer</p>
                     <p className="text-xl font-bold text-foreground">{dashboardStats.vencimiento}</p>
                   </div>
-                  <RefreshCw className="w-6 h-6 text-info/30" />
+                  <RefreshCw className="w-6 h-6 text-amber-400/60" />
                 </div>
 
                 <Button
                   variant="ghost"
-                  className="w-full text-xs"
+                  className="w-full text-sm font-medium hover:bg-muted/50"
                   onClick={() => navigate('/app/alertas')}
                 >
                   Ver todas las alertas →
@@ -249,16 +249,16 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            {/* Total Investment Card */}
-            <div className="p-5 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-card-hero">
-              <p className="text-xs font-medium opacity-80 mb-1">Inversión Total</p>
-              <p className="text-2xl font-bold mb-3">
+            {/* Total Investment Card - Compact */}
+            <div className="p-4 rounded-lg bg-muted/50 border border-border/50">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Inversión Total</p>
+              <p className="text-lg font-bold text-foreground mb-2">
                 ${dashboardStats.valorTotalCosto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
               </p>
               <Button 
-                variant="secondary" 
+                variant="outline" 
                 size="sm" 
-                className="w-full bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground text-xs border-0"
+                className="w-full text-xs"
                 onClick={() => navigate('/app/reportes')}
               >
                 Ver Reporte Financiero

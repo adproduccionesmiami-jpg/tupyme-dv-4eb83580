@@ -110,11 +110,11 @@ export default function Alertas() {
   };
 
   const kpiCards = [
-    { key: 'sin_stock', label: 'Sin Stock', value: stats.sinStock, icon: XCircle, color: 'destructive' },
-    { key: 'poco_stock', label: 'Poco Stock', value: stats.pocoStock, icon: TrendingDown, color: 'warning' },
-    { key: 'sobre_stock', label: 'Sobre Stock', value: stats.sobreStock, icon: TrendingUp, color: 'info' },
-    { key: 'vencimiento', label: 'Vencimiento', value: stats.vencimiento, icon: Calendar, color: 'warning' },
-    { key: 'all', label: 'Total Alertas', value: stats.total, icon: Package, color: 'primary' },
+    { key: 'sin_stock', label: 'Sin Stock', value: stats.sinStock, icon: XCircle, bgColor: 'bg-red-500/15', iconColor: 'text-red-400', borderColor: 'border-red-500/30' },
+    { key: 'poco_stock', label: 'Poco Stock', value: stats.pocoStock, icon: TrendingDown, bgColor: 'bg-amber-500/15', iconColor: 'text-amber-400', borderColor: 'border-amber-500/30' },
+    { key: 'sobre_stock', label: 'Sobre Stock', value: stats.sobreStock, icon: TrendingUp, bgColor: 'bg-blue-500/15', iconColor: 'text-blue-400', borderColor: 'border-blue-500/30' },
+    { key: 'vencimiento', label: 'Vencimiento', value: stats.vencimiento, icon: Calendar, bgColor: 'bg-amber-500/15', iconColor: 'text-amber-400', borderColor: 'border-amber-500/30' },
+    { key: 'all', label: 'Total Alertas', value: stats.total, icon: Package, bgColor: 'bg-muted/50', iconColor: 'text-muted-foreground', borderColor: 'border-border' },
   ];
 
   return (
@@ -145,14 +145,16 @@ export default function Alertas() {
           {kpiCards.map((kpi) => (
             <Card 
               key={kpi.key}
-              className={`bg-card border-border/50 cursor-pointer transition-all hover:shadow-card-elevated ${
-                filterType === kpi.key ? 'ring-2 ring-primary border-primary' : ''
+              className={`bg-card cursor-pointer transition-all hover:shadow-md ${
+                filterType === kpi.key 
+                  ? `ring-2 ring-offset-2 ring-offset-background ${kpi.borderColor} ${kpi.bgColor}` 
+                  : 'border-border/50 hover:border-border'
               }`}
               onClick={() => setFilterType(filterType === kpi.key ? 'all' : kpi.key)}
             >
               <CardContent className="p-4 flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-lg bg-${kpi.color}/10 flex items-center justify-center`}>
-                  <kpi.icon className={`w-5 h-5 text-${kpi.color}`} />
+                <div className={`w-10 h-10 rounded-lg ${kpi.bgColor} flex items-center justify-center`}>
+                  <kpi.icon className={`w-5 h-5 ${kpi.iconColor}`} />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">{kpi.label}</p>

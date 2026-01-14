@@ -44,14 +44,14 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Panel - Premium Branding with brand gradient */}
+      {/* Left Panel - Premium Branding with emerald-dark gradient */}
       <div 
         className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, hsl(215 55% 12%) 0%, hsl(215 55% 20%) 35%, hsl(210 60% 30%) 70%, hsl(200 70% 40%) 100%)',
+          background: 'linear-gradient(135deg, hsl(160 30% 8%) 0%, hsl(160 35% 12%) 35%, hsl(160 40% 18%) 70%, hsl(160 45% 25%) 100%)',
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent" />
         <div className="relative z-10 flex flex-col justify-center px-16">
           <div className="flex items-center gap-4 mb-10">
             <img src={logoMonocromatico} alt="TuPyme" className="h-28 w-auto drop-shadow-2xl" />
@@ -64,8 +64,8 @@ export default function Login() {
           </p>
         </div>
         {/* Decorative elements */}
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-20 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-400/15 rounded-full blur-3xl" />
       </div>
 
       {/* Right Panel - Form */}
