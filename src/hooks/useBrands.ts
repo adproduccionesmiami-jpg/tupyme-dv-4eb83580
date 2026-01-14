@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client.browser';
 
 export interface Brand {
     id: string;
-    nombre: string;
+    name: string;
     is_active: boolean;
 }
 
@@ -12,10 +12,10 @@ export function useBrands() {
         queryKey: ['brands'],
         queryFn: async () => {
             const { data, error } = await supabase
-                .from('marcas' as any)
+                .from('brands')
                 .select('*')
                 .eq('is_active', true)
-                .order('nombre', { ascending: true });
+                .order('name', { ascending: true });
 
             if (error) {
                 console.error('Error fetching brands:', error);

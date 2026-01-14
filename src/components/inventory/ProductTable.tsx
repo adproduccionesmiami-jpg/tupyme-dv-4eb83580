@@ -118,7 +118,7 @@ export function ProductTable({ products, isLoading, canEdit, onEdit, onDelete }:
         <div className="grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {products.map((product) => {
                 const status = getStockStatus(product);
-                const categoryName = categories.find(c => c.id === product.categoryId)?.nombre || product.categoria;
+                const categoryName = categories.find(c => c.id === product.categoryId)?.name || product.categoria;
 
                 return (
                     <div

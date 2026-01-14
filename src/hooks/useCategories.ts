@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client.browser';
 
 export interface Category {
     id: string;
-    nombre: string;
+    name: string;
     is_active: boolean;
 }
 
@@ -12,10 +12,10 @@ export function useCategories() {
         queryKey: ['categories'],
         queryFn: async () => {
             const { data, error } = await supabase
-                .from('categorías' as any) // Using 'categorías' as seen in user screenshot
+                .from('categories')
                 .select('*')
                 .eq('is_active', true)
-                .order('nombre', { ascending: true });
+                .order('name', { ascending: true });
 
             if (error) {
                 console.error('Error fetching categories:', error);
