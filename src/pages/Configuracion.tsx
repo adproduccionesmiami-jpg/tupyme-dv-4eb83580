@@ -619,21 +619,21 @@ export default function Configuracion() {
 
               {/* Session Card */}
               <div className="lg:col-span-4">
-                <Card className="border-border">
+                <Card className="border-border/50">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-3 min-h-[40px]">
-                      <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
-                        <LogOut className="w-5 h-5 text-destructive" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+                          <LogOut className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-medium text-foreground">Cerrar sesión</h3>
+                          <p className="text-xs text-muted-foreground">Salir de tu cuenta</p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground">Sesión</h3>
-                        <p className="text-sm text-muted-foreground">Cerrar sesión en este dispositivo</p>
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <Button variant="destructive" size="sm" onClick={handleLogout} className="gap-2 w-full">
+                      <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2 text-muted-foreground hover:text-foreground">
                         <LogOut className="w-4 h-4" />
-                        Cerrar sesión
+                        Salir
                       </Button>
                     </div>
                   </CardContent>
