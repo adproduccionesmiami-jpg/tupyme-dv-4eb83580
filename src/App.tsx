@@ -15,6 +15,7 @@ import { SplashScreen } from "@/components/ui/splash-screen";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Inventario from "./pages/Inventario";
 import Movimientos from "./pages/Movimientos";
@@ -46,6 +47,7 @@ const App = () => {
                     <Route path="/" element={<Index />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
 
                     {/* Protected routes - using Supabase auth */}
                     <Route

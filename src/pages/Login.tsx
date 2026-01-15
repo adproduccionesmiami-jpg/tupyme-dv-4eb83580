@@ -12,7 +12,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signIn, user, isLoading } = useSupabaseAuth();
+  const { signIn, requestPasswordReset, user, isLoading } = useSupabaseAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -116,6 +116,27 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                 />
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="h-auto p-0 text-sm text-primary hover:underline"
+                  onClick={async () => {
+                    setError('');
+                    if (!email.trim()) {
+                      setError('Ingresa tu correo para enviarte el enlace de recuperación.');
+                      return;
+                    }
+                    setIsSubmitting(true);
+                    const res = await requestPasswordReset(email);
+                    setIsSubmitting(false);
+                    if (res.error) setError(res.error);
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Olvidé mi contraseña
+                </Button>
               </div>
             </div>
 

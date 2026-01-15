@@ -36,6 +36,7 @@ interface SupabaseAuthContextType {
   // Auth actions
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signUp: (email: string, password: string) => Promise<{ error?: string }>;
+  requestPasswordReset: (email: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   
   // Utility
@@ -166,21 +167,29 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   // Sign in with email/password
   const signIn = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
-      console.log('[Auth] Signing in:', email);
+      const normalizedEmail = email.trim().toLowerCase();
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: normalizedEmail,
         password,
       });
 
       if (error) {
-        console.error('[Auth] Sign in error:', error);
+        const code = (error as any)?.code as string | undefined;
+
+        if (code === 'invalid_credentials') {
+          return {
+            error:
+              'Correo o contraseña incorrectos. Si no recuerdas tu contraseña, usa “Olvidé mi contraseña”.',
+          };
+        }
+
         return { error: error.message };
       }
 
-      console.log('[Auth] Sign in successful:', data.user?.id);
-      return {};
-    } catch (err) {
-      console.error('[Auth] Unexpected sign in error:', err);
+      // NOTE: membership se carga vía onAuthStateChange
+      return data.user ? {} : { error: 'No se pudo iniciar sesión.' };
+    } catch {
       return { error: 'Error inesperado al iniciar sesión' };
     }
   };
@@ -188,11 +197,11 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
   // Sign up with email/password
   const signUp = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
-      console.log('[Auth] Signing up:', email);
+      const normalizedEmail = email.trim().toLowerCase();
       const redirectUrl = `${window.location.origin}/`;
-      
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: normalizedEmail,
         password,
         options: {
           emailRedirectTo: redirectUrl,
@@ -200,18 +209,39 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (error) {
-        console.error('[Auth] Sign up error:', error);
         return { error: error.message };
       }
 
-      console.log('[Auth] Sign up successful:', data.user?.id);
+      // Si auto-confirm está habilitado, el usuario quedará listo para entrar inmediatamente.
+      // Si no, igual damos feedback amigable.
       toast.success('Cuenta creada', {
-        description: 'Revisa tu email para confirmar tu cuenta.',
+        description: 'Tu cuenta fue creada. Ya puedes iniciar sesión.',
       });
-      return {};
-    } catch (err) {
-      console.error('[Auth] Unexpected sign up error:', err);
+
+      return data.user ? {} : { error: 'No se pudo crear la cuenta.' };
+    } catch {
       return { error: 'Error inesperado al registrarse' };
+    }
+  };
+
+  const requestPasswordReset = async (email: string): Promise<{ error?: string }> => {
+    try {
+      const normalizedEmail = email.trim().toLowerCase();
+      const redirectTo = `${window.location.origin}/reset-password`;
+
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+        redirectTo,
+      });
+
+      if (error) return { error: error.message };
+
+      toast.success('Te enviamos un enlace', {
+        description: 'Revisa tu correo para restablecer tu contraseña.',
+      });
+
+      return {};
+    } catch {
+      return { error: 'No se pudo enviar el enlace de recuperación.' };
     }
   };
 
@@ -245,6 +275,7 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
     userRole: membership?.role ?? null,
     signIn,
     signUp,
+    requestPasswordReset,
     signOut,
     refreshMembership,
   };
